@@ -66,7 +66,7 @@ app.post("/login",function(req,res){
 
     let qry = `
       SELECT 
-        EMPNIT,TOKEN_U AS USUARIO, TOKEN_P AS CLAVE 
+        EMPNIT,TOKEN_U AS USUARIO, TOKEN_P AS CLAVE, TIPO, TOKEN 
       FROM TOKEN_USUARIOS
       WHERE 
         TOKEN_U='${u}' AND 
@@ -79,16 +79,45 @@ app.post("/login",function(req,res){
 }); 
 
 
+app.post("/select_empresas_token",function(req,res){
+
+  const {token} = req.body;
+
+  let qry = `
+        SELECT EMPNIT, EMPNOMBRE AS SUCURSAL
+        FROM COMMUNITY_EMPRESAS_SYNC
+        WHERE TOKEN='${token}'; 
+    `;
+
+  execute.QueryToken(res,qry,'')
+
+});  
 
 
 
 app.post("/select_clave_general",function(req,res){
 
-  const {sucursal} = req.body;
+  const {sucursal,tipo} = req.body;
 
-  let qry = `
-    SELECT EMPNIT, CLAVE_1 FROM TOKEN_CLAVES WHERE EMPNIT='${sucursal}' 
-    `;
+  let qry = '';
+
+  if(tipo=='ISC'){
+      qry = `
+      SELECT EMPNIT, CLAVE_1 FROM TOKEN_CLAVES WHERE EMPNIT='${sucursal}' 
+      `;
+  }else{
+      qry = `
+        SELECT 
+          EMPNIT, 
+          TOKEN_CLAVE_1 AS CLAVE_1 
+        FROM 
+          COMMUNITY_EMPRESAS_SYNC 
+        WHERE 
+          EMPNIT='${sucursal}'; 
+      `;
+  }
+
+  
 
   execute.QueryToken(res,qry,'')
 

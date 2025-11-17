@@ -7,3 +7,5 @@ let GlobalLoader = `Cargando datos....`;
 
 
 let GlobalCodSucursal = '';
+let TOKEN = '';
+let GlobalTipo = '';

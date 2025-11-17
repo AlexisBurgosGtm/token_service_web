@@ -97,7 +97,14 @@ function getView(){
         },
         clave_general:()=>{
             return `
-             <div class="contacts row">
+            
+            
+            <select class="negrita text-danger" id="cmbSucursal">
+
+            </select>
+            <br><br><br>
+
+            <div class="contacts row">
 
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-6">
                       
@@ -264,16 +271,28 @@ function addListeners(){
 
             data.recordset.map((r)=>{
                 GlobalCodSucursal = r.EMPNIT;
+                TOKEN = r.TOKEN;
+                GlobalTipo = r.TIPO;
             })
 
             btnLogin.disabled = false;
 
             document.getElementById('tab-uno').click();
 
-            get_clave_general();
+            get_sucursales()
+            .then(()=>{
 
-            iniciar_clave_general();
+                get_clave_general();
 
+                iniciar_clave_general();
+
+
+            })
+            .catch(()=>{
+
+            })
+
+         
 
         })
         .catch(()=>{
@@ -302,6 +321,10 @@ function addListeners(){
             }
     })
     
+
+    document.getElementById('cmbSucursal').addEventListener('change',()=>{
+        get_clave_general();
+    })
 
 };
 
@@ -362,7 +385,7 @@ function data_clave_general(){
 
     return new Promise((resolve,reject)=>{
 
-        axios.post('/select_clave_general',{sucursal:GlobalCodSucursal})
+        axios.post('/select_clave_general',{sucursal:GlobalCodSucursal,tipo:GlobalTipo})
         .then((response) => {
             if(response.status.toString()=='200'){
                 let data = response.data;
@@ -412,6 +435,54 @@ function get_clave_general(){
 
 };
 
+function get_sucursales(){
 
+    return new Promise((resolve,reject)=>{
 
+            data_sucursales()
+            .then((data)=>{
+                let str = '';
+                data.recordset.map((r)=>{
+                    str += `<option value='${r.EMPNIT}'>${r.SUCURSAL}</option>`
+                })
+                document.getElementById('cmbSucursal').innerHTML = str;
+                GlobalCodSucursal = document.getElementById('cmbSucursal').value;
+                resolve();
+            })
+            .catch(()=>{
+                document.getElementById('cmbSucursal').innerHTML = `<option value=''>NO SE CARGARON SUCURSALES</option>`;
+                GlobalCodSucursal = '';
+                reject();
+            })
+
+    })
+
+    
+};
+function data_sucursales(){
+
+    return new Promise((resolve,reject)=>{
+
+        axios.post('/select_empresas_token',{token:TOKEN})
+        .then((response) => {
+            if(response.status.toString()=='200'){
+                let data = response.data;
+                if(data.toString()=="error"){
+                    reject();
+                }else{
+                    if(Number(data.rowsAffected[0])>0){
+                        resolve(data);             
+                    }else{
+                        reject();
+                    } 
+                }       
+            }else{
+                reject();
+            }                   
+        }, (error) => {
+            reject();
+        });
+    }) 
+
+};
 
