@@ -323,6 +323,7 @@ function addListeners(){
     
 
     document.getElementById('cmbSucursal').addEventListener('change',()=>{
+       GlobalCodSucursal = document.getElementById('cmbSucursal').value;
         get_clave_general();
     })
 
